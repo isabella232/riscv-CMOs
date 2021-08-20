@@ -385,7 +385,7 @@ Zicbom and Zicbop extensions is expected to be defined in future extensions._
 
 For the purposes of writing the `mtinst` or `htinst` register on a trap, the
 following standard transformation is defined for the instructions in the Zicbom
-and Zicbop extensions:
+and Zicboz extensions:
 
 [wavedrom, , svg]
 ....
