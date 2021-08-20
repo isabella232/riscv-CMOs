@@ -3,9 +3,9 @@
 
 _Cache management operation_ (or _CMO_) instructions perform operations on
 copies of data in the memory hierarchy. In general, CMO instructions operate on
-cached copies of data, but in some cases, a CMO instruction may operate on the
-copy of data in memory. Furthermore, CMO instructions are grouped by operation
-into the following classes:
+cached copies of data, but in some cases, a CMO instruction may operate on
+memory locations directly. Furthermore, CMO instructions are grouped by
+operation into the following classes:
 
 * A _management_ instruction manipulates cached copies of data with respect to
   sets of observers
