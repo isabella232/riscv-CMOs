@@ -381,17 +381,30 @@ Zicbom and Zicbop extensions is expected to be defined in future extensions._
 
 ****
 
-==== Hypervisor Interactions
+==== Hypervisor Extension
 
-When a CMO instruction traps, zero is written into the appropriate trap
-instruction CSR, `mtinst` or `htinst`, in accordance with the hypervisor
-extension.
+For the purposes of writing the `mtinst` or `htinst` register on a trap, the
+following standard transformation is defined for the instructions in the Zicbom
+and Zicbop extensions:
+
+[wavedrom, , svg]
+....
+{reg:[
+	{ bits: 7,  name: 'opcode'},
+	{ bits: 5,  name: 0x0 },
+	{ bits: 3,  name: 'funct3'},
+	{ bits: 5,  name: 0x0},
+	{ bits: 12, name: 'operation'},
+]}
+....
+
+The `operation` field corresponds to the 12 most significant bits of the
+trapping instruction.
 
 ****
 
-_The existing store transformation is unsuitable since the upper 12b of the CMO
-instruction encoding is used for opcode information rather than immediate and
-rs2._
+_As described in the hypervisor extension, a zero may be written into `mtinst`
+or `htinst` instead of the standard transformation defined above._
 
 ****
 
@@ -436,6 +449,7 @@ sizes and the supported CBIE values.
 ** Ambiguity arises when "physical addresses" are remapped at different points
    in the system
 
-* Define misaligned exception for CBO.ZERO to emulate operations for 
+* Define misaligned exception for CBO.ZERO to emulate operations in certain
+  cases, e.g. for certain PMA combinations?
 
 The above items primarily correspond to future work.
