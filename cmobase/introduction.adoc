@@ -2,8 +2,10 @@
 == Introduction
 
 _Cache management operation_ (or _CMO_) instructions perform operations on
-cached copies of data in the memory hierarchy. These instructions are grouped by
-operation into the following instruction classes:
+copies of data in the memory hierarchy. In general, CMO instructions operate on
+cached copies of data, but in some cases, a CMO instruction may operate on
+memory locations directly. Furthermore, CMO instructions are grouped by
+operation into the following classes:
 
 * A _management_ instruction manipulates cached copies of data with respect to
   sets of observers
@@ -14,8 +16,9 @@ operation into the following instruction classes:
   copies of data in one or more caches
 
 This document introduces a base set of CMO ISA extensions that operate
-specifically on cache blocks. Each of the above classes of instructions
-represents an extension in this specification:
+specifically on cache blocks or the memory locations corresponding to a cache
+block. Each of the above classes of instructions represents an extension in this
+specification:
 
 * The _Zicbom_ extension defines a set of cache block management instructions:
   `CBO.INVAL`, `CBO.CLEAN`,  and `CBO.FLUSH`

@@ -7,15 +7,15 @@ This chapter provides information common to all CMO extensions.
 
 A _memory location_ is a physical resource in a system uniquely identified by a
 _physical address_. The _observers_ of a given memory location consist of the
-RISC-V harts or I/O devices that can access that memory location. A given
-observer may not be able to access all memory locations in a system, and two
-different harts or devices may or may not be able to observe the same set of
-memory locations.
+agents, such as RISC-V harts, accelerators, I/O devices, etc., that can access
+that memory location. A given observer may not be able to access all memory
+locations in a system, and two different agents may or may not be able to
+observe the same set of memory locations.
 
 In this specification, a _load operation_ (or _store operation_) is performed by
-an observer to consume (or modify) the data at a given memory location. For a
-RISC-V hart, a load or store operation may be performed as a result of an
-explicit or implicit memory access. Additionally, a _read operation_ (or _write
+an observer to consume (or modify) the data at a given memory location. Load or
+store operations may be performed as a result of an explicit or implicit memory
+access to that memory location. Additionally, a _read operation_ (or _write
 operation_) is an operation performed on the memory location to fetch (or
 update) the data at the physical resource.
 
@@ -381,6 +381,33 @@ Zicbom and Zicbop extensions is expected to be defined in future extensions._
 
 ****
 
+==== Hypervisor Extension
+
+For the purposes of writing the `mtinst` or `htinst` register on a trap, the
+following standard transformation is defined for the instructions in the Zicbom
+and Zicboz extensions:
+
+[wavedrom, , svg]
+....
+{reg:[
+	{ bits: 7,  name: 'opcode'},
+	{ bits: 5,  name: 0x0 },
+	{ bits: 3,  name: 'funct3'},
+	{ bits: 5,  name: 0x0},
+	{ bits: 12, name: 'operation'},
+]}
+....
+
+The `operation` field corresponds to the 12 most significant bits of the
+trapping instruction.
+
+****
+
+_As described in the hypervisor extension, a zero may be written into `mtinst`
+or `htinst` instead of the standard transformation defined above._
+
+****
+
 === Effects on Constrained LR/SC Loops
 
 Executing any cache block management instruction (`CBO.INVAL`, `CBO.CLEAN`, or
@@ -409,5 +436,20 @@ periodic cancellation of a reservation on another hart._
 * cache block size for zero
 * CBIE support at each privilege level
 
-At minimum, the configuration structure needs to describe the two cache block
+At a minimum, the configuration structure needs to describe the two cache block
 sizes and the supported CBIE values.
+
+=== Open Issues
+
+* Behavior of Zicbom instructions in context of non-cacheable attributes
+** Relevant primarily when changing attributes dynamically
+
+* What is the term for the unique identifier of a memory location?
+** This specification generally uses _physical address_
+** Ambiguity arises when "physical addresses" are remapped at different points
+   in the system
+
+* Define misaligned exception for CBO.ZERO to emulate operations in certain
+  cases, e.g. for certain PMA combinations?
+
+The above items primarily correspond to future work.

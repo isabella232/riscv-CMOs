@@ -2,9 +2,16 @@
 == Acknowledgments
 
 Contributors to this specification (in alphabetical order) include: +
+Allen Baum,
+Paul Donahue,
+Greg Favor,
+Andy Glew,
 John Ingalls,
-David Kruckemyer, and
-Philipp Tomsich.
+David Kruckemyer,
+Josh Scheid,
+Philipp Tomsich,
+and
+Paul Walmsley
 
 We express our gratitude to everyone that contributed to, reviewed, or improved
 this specification through their comments and questions.
