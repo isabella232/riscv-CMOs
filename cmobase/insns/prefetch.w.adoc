@@ -6,7 +6,7 @@ Provide a hint to hardware that the cache block containing the effective address
 is likely to be accessed by a data write in the near future
 
 Mnemonic::
-prefetch.w _base_, _offset_
+prefetch.w _offset_(_base_)
 
 Encoding::
 [wavedrom, , svg]
