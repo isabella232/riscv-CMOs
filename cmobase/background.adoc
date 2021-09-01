@@ -451,5 +451,6 @@ sizes and the supported CBIE values.
 
 * Define misaligned exception for CBO.ZERO to emulate operations in certain
   cases, e.g. for certain PMA combinations?
+** Or define what has to work at a platform level?
 
 The above items primarily correspond to future work.
