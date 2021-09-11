@@ -149,8 +149,8 @@ else
 
 --
 
-Each `x{csrname}` register is WLRL, where the legal values are defined by the
-execution environment discovery mechanism.
+Each `x{csrname}` register is WARL; however, software should determine the legal
+values from the execution environment discovery mechanism.
 
 ****
 

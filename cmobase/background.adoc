@@ -6,56 +6,46 @@ This chapter provides information common to all CMO extensions.
 === Memory and Caches
 
 A _memory location_ is a physical resource in a system uniquely identified by a
-_physical address_. The _observers_ of a given memory location consist of the
-agents, such as RISC-V harts, accelerators, I/O devices, etc., that can access
-that memory location. A given observer may not be able to access all memory
-locations in a system, and two different agents may or may not be able to
-observe the same set of memory locations.
-
-In this specification, a _load operation_ (or _store operation_) is performed by
-an observer to consume (or modify) the data at a given memory location. Load or
-store operations may be performed as a result of an explicit or implicit memory
-access to that memory location. Additionally, a _read operation_ (or _write
-operation_) is an operation performed on the memory location to fetch (or
-update) the data at the physical resource.
+_physical address_. An _agent_ is a logic block, such as a RISC-V hart,
+accelerator, I/O device, etc., that can access a given memory location.
 
 ****
 
-_Load and store operations are decoupled from read and write operations by
-caches, described below. For example, a load operation may be satisfied by a
-cache without performing a read operation in memory, or a store operation may be
-satisfied by a cache that first performs a read operation._
+_A given agent may not be able to access all memory locations in a system, and
+two different agents may or may not be able to access the same set of memory
+locations._
 
 ****
+
+A _load operation_ (or _store operation_) is performed by an agent to consume
+(or modify) the data at a given memory location. Load and store operations are
+performed as a result of explicit memory accesses to that memory location.
+Additionally, a _read transfer_ from memory fetches the data at the memory
+location, while a _write transfer_ to memory updates the data at the memory
+location.
 
 A _cache_ is a structure that buffers copies of data to reduce average memory
-latency. Any number of caches may be interspersed between an observer and a
-memory location, and load and store operations from an observer may be satisfied
-by a cache instead of the memory location.
+latency. Any number of caches may be interspersed between an agent and a memory
+location, and load and store operations from an agent may be satisfied by a
+cache instead of the memory location.
+
+****
+
+_Load and store operations are decoupled from read and write transfers by
+caches. For example, a load operation may be satisfied by a cache without
+performing a read transfer from memory, or a store operation may be satisfied by
+a cache that first performs a read transfer from memory._
+
+****
 
 Caches organize copies of data into _cache blocks_, each of which represents a
 contiguous, naturally aligned power-of-two (or _NAPOT_) range of memory
 locations. A cache block is identified by a physical address corresponding to
-the underlying memory locations, and a _cache block operation_ (or _CBO_)
-operates on one or more cache blocks.
-
-****
-
-_The Zicbom, Zicboz, and Zicbop extensions define operations on a single cache
-block only._
-
-****
-
-Like an operation on a memory location, a read operation may be performed on a
-cache to fetch a copy of a cache block, and a write operation may be performed
-on a cache to update a copy of a cache block. In effect, read and write
-operations transfer copies of cache blocks among caches and memory.
-
-The capacity and organization of a cache and the size of a cache block are both
-_implementation-defined_, and the execution environment provides software a
-means to discover information about the caches and cache blocks in a system. For
-the initial base set of CBOs, the size of a cache block shall be uniform
-throughout the system.
+the underlying memory locations. The capacity and organization of a cache and
+the size of a cache block are both _implementation-specific_, and the execution
+environment provides software a means to discover information about the caches
+and cache blocks in a system. In the initial set of CMO extensions, the size of
+a cache block shall be uniform throughout the system.
 
 ****
 
@@ -64,52 +54,114 @@ relaxed._
 
 ****
 
-=== Coherent Observers
+Implementation techniques, e.g. speculative execution or hardware prefetching,
+may cause a given cache to allocate or deallocate a copy of a cache block at any
+time. Allocating a copy of a cache block results in a read transfer from another
+cache or from memory, while deallocating a copy of a cache block may result in a
+write transfer to another cache or to memory depending on whether the data in
+the copy were modified by a store operation. Additional details are discussed in
+<<Coherent Agents and Caches>>.
 
-For a given memory location, a _set of coherent observers_ consists of the set
-of observers for which all of the following hold without software intervention:
+=== Cache-Block Operations
 
-* Store operations from all observers in the set appear to be serialized with
+Executing a CBO instruction results in one or more explicit memory accesses that
+perform operations on the cache blocks identified by the instruction. In
+general, a CBO instruction may identify one or more cache blocks; however, in
+the initial set of CMO extensions, CBO instructions identify a single cache
+block only.
+
+A cache-block maintenance instruction performs one of the following operations,
+relative to the copy of a given cache block allocated in a given cache:
+
+* An _invalidate operation_ deallocates the copy of the cache block
+
+* A _clean operation_ performs a write transfer if the data in the copy of the
+  cache block have been modified by a store operation
+
+* A _flush operation_ atomically performs a clean operation followed by an
+  invalidate operation
+
+Additional details, including the actual operation performed by a given
+cache-block management instruction, are described in <<#Zicbom>>.
+
+A cache-block zero instruction performs a set of store operations that write
+zeros to the set of bytes corresponding to a cache block. An implementation may
+or may not update the entire set of bytes atomically with a single store
+operation. Additional details are described in <<#Zicboz>>.
+
+A cache-block prefetch instruction is a HINT to the hardware that software
+expects to perform a particular type of memory access in the near future.
+Additional details are described in <<#Zicbop>>.
+
+=== Coherent Agents and Caches
+
+For a given memory location, a _set of coherent agents_ consists of the agents
+for which all of the following hold:
+
+* Store operations from all agents in the set appear to be serialized with
   respect to each other
-* Store operations from all observers in the set eventually appear to all other
-  observers in the set
-* A load operation from an observer in the set returns data from a store
-  operation from an observer in the set (or from the initial data in memory)
+* Store operations from all agents in the set eventually appear to all other
+  agents in the set
+* A load operation from an agent in the set returns data from a store operation
+  from an agent in the set (or from the initial data in memory)
 
-The coherent observers within such a set shall access a given memory location
-with the same physical address and the same physical memory attributes; however,
-if the coherence PMA for a given observer indicates a given memory location is
-not coherent, that observer shall not be a member of a set of coherent observers
-with any other observer for that memory location.
+The coherent agents within such a set shall access a given memory location with
+the same physical address and the same physical memory attributes; however, if
+the coherence PMA for a given agent indicates a given memory location is not
+coherent, that agent shall not be a member of a set of coherent agents with any
+other agent for that memory location.
 
-An observer who is a member of a set of coherent observers is said to be
-_coherent_ with respect to the other observers in the set. On the other hand, an
-observer who is _not_ a member is said to be _non-coherent_ with respect to the
-observers in the set.
+An agent who is a member of a set of coherent agents is said to be _coherent_
+with respect to the other agents in the set. On the other hand, an agent who is
+_not_ a member is said to be _non-coherent_ with respect to the agents in the
+set.
 
-Caches introduce multiple copies of a given cache block, and the copies accessed
-by the coherent observers are kept coherent by an _implementation-defined_
-mechanism. A _coherent cache_ may allocate a copy of the cache block at any
-time, obtaining a copy from another coherent cache or from the underlying memory
-locations by performing a read operation. Similarly, a coherent cache may
-deallocate a copy of the cache block at any time, transferring a copy to another
-coherent cache by performing a write operation. Additionally, a coherent cache
-may transfer a copy of the cache block to the underlying memory locations at any
-time by performing a write operation, provided that a coherent observer
-performed a store operation to the cache block since the previous write
-operation to the memory locations. In the absence of an invalidate operation
-performed by a coherent observer (see <<#Zicbom>>), at least one coherent cache
+Caches introduce the possibility of multiple copies of a given cache block, and
+an _implementation-specific_ mechanism keeps those copies coherent with respect
+to the explicit memory accesses from a given set of coherent agents. A cache
+kept coherent by such a mechanism is known as a _coherent cache_, and the
+operations performed by CBO instructions affect the copies of cache blocks in
+the coherent caches that can be accessed by the set of coherent agents.
+
+Coherent caches have the following behaviors:
+
+* A coherent cache may allocate a copy of a cache block and perform a read
+  transfer from another cache or from memory at any time
+
+* A coherent cache may deallocate a copy of a cache block and perform a write
+  transfer to another cache at any time
+
+* A coherent cache may deallocate a copy of a cache block and perform a write
+  transfer to memory at any time, provided that the data in the copy have been
+  modified by a store operation performed by a coherent agent since the previous
+  write transfer to memory
+
+*FIXME_FIXME_FIXME_FIXME_FIXME*
+  
+
+
+* In the absence of an invalidate operation performed by a coherent agent, at
+  least one coherent cache shall perform a write transfer to memory if the data
+  in a copy have been modified by a store operation 
+
+
+In the absence of an invalidate operation
+performed by a coherent agent (see <<#Zicbom>>), at least one coherent cache
 shall write the cache block to the underlying memory locations if a coherent
-observer performed a store operation to the cache block; otherwise, no coherent
+agent performed a store operation to the cache block; otherwise, no coherent
 cache may perform a write operation of the cache block to the underlying memory
 locations.
 
 ****
 
 _The above restrictions ensure that a "clean" copy will not be written back into
-memory._
+memory, eliminating the possibility that data transferred from memory prior to
+a write transfer from a non-coherent agent will overwrite the data written by the non-coherent
+agent._
 
 ****
+
+FIXME: coherent instruction caches
 
 === Memory Ordering
 
@@ -143,8 +195,8 @@ instructions.
 For cache block zero instructions, the resulting store operations simply 
 behave as stores in the PPO rules.
 
-Finally, as cache block prefetch instructions do not modify architectural memory
-state, the resulting operations are _not_ ordered by the PPO rules.
+Finally, for cache block prefetch instructions, the resulting operations are
+_not_ ordered by the PPO rules.
 
 ==== Load Values
 
@@ -172,14 +224,14 @@ load. In particular, an additional condition is added to the Load Value Axiom:
   that both precedes _i_ and succeeds the latest clean or flush operation on _x_
   that precedes _i_ 
 
-. The value of any store to _x_ by a non-coherent observer regardless of the
-  above conditions
+. The value of any store to _x_ by a non-coherent agent regardless of the above
+  conditions
 
 ****
 
 _The first three bullets describe the possible load values at different points
 in the global memory order relative to clean or flush operations. The final
-bullet implies that the load value may be produced by a non-coherent observer at
+bullet implies that the load value may be produced by a non-coherent agent at
 any time._
 
 ****
@@ -192,7 +244,7 @@ ultimately translated into a physical address based on the privilege mode and
 enabled translation mechanisms.
 
 Execution of certain CMO instructions may result in traps due to CSR state,
-described in the <<#csr_state>> section, or due to the various memory
+described in the <<#csr_state>> section, or due to the various address
 translation and protection mechanisms. The trapping behavior of CMO instructions
 is described in the following sections.
 
@@ -426,28 +478,19 @@ periodic cancellation of a reservation on another hart._
 
 ****
 
-=== Configuration
+=== Software Discovery
 
-*TBD*
+The initial set of CMO extensions requires the following information to be
+discovered by software:
 
-* general cache structure/organization?
-* relationship among harts? (i.e. which set does a hart belong to?)
-* cache block size for management and prefetch
-* cache block size for zero
+* The cache block size for management and prefetch instructions
+* The cache block size for zero instructions
 * CBIE support at each privilege level
-
-At a minimum, the configuration structure needs to describe the two cache block
-sizes and the supported CBIE values.
 
 === Open Issues
 
 * Behavior of Zicbom instructions in context of non-cacheable attributes
 ** Relevant primarily when changing attributes dynamically
-
-* What is the term for the unique identifier of a memory location?
-** This specification generally uses _physical address_
-** Ambiguity arises when "physical addresses" are remapped at different points
-   in the system
 
 * Define misaligned exception for CBO.ZERO to emulate operations in certain
   cases, e.g. for certain PMA combinations?
