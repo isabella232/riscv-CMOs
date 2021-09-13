@@ -5,18 +5,19 @@ Cache-block management instructions enable software running on a set of coherent
 agents to communicate with a set of non-coherent agents by performing one of the
 following operations:
 
-* An _invalidate operation_ makes store operations from a set of non-coherent
-  agents appear to the set of coherent agents at a point common to both
-  sets by removing all copies of a cache block from the coherent caches up to
-  that point
+* An invalidate operation makes data from store operations performed a set of
+  non-coherent agents appear to the set of coherent agents at a point common to
+  both sets by deallocating all copies of a cache block from the set of coherent
+  caches up to that point
   
-* A _clean operation_ makes store operations from the set of coherent agents
-  appear to a set of non-coherent agents at a point common to both sets by
-  performing a write operation of a copy of a cache block to that point,
-  provided a coherent agent performed a store operation to the cache block
-  since the previous such write operation
+* A clean operation makes data from store operations performed by the set of
+  coherent agents appear to a set of non-coherent agents at a point common to
+  both sets by performing a write transfer of a copy of a cache block to that
+  point provided a coherent agent performed a store operation that modified the
+  data in the cache block since the previous invalidate, clean, or flush
+  operation on the cache block
   
-* A _flush operation_ atomically performs a clean operation followed by an
+* A flush operation atomically performs a clean operation followed by an
   invalidate operation
 
 In the Zicbom extension, the instructions operate to a point common to _all_

@@ -3,6 +3,7 @@
 
 This chapter provides information common to all CMO extensions.
 
+[#memory-caches,reftext="Memory and Caches"]
 === Memory and Caches
 
 A _memory location_ is a physical resource in a system uniquely identified by a
@@ -54,13 +55,15 @@ relaxed._
 
 ****
 
-Implementation techniques, e.g. speculative execution or hardware prefetching,
+Implementation techniques such as speculative execution or hardware prefetching
 may cause a given cache to allocate or deallocate a copy of a cache block at any
-time. Allocating a copy of a cache block results in a read transfer from another
+time, provided the corresponding physical addresses are accessible according to
+the supported access type PMA and are cacheable according to the cacheability
+PMA. Allocating a copy of a cache block results in a read transfer from another
 cache or from memory, while deallocating a copy of a cache block may result in a
 write transfer to another cache or to memory depending on whether the data in
 the copy were modified by a store operation. Additional details are discussed in
-<<Coherent Agents and Caches>>.
+<<#coherent-agents-caches>>.
 
 === Cache-Block Operations
 
@@ -92,6 +95,7 @@ A cache-block prefetch instruction is a HINT to the hardware that software
 expects to perform a particular type of memory access in the near future.
 Additional details are described in <<#Zicbop>>.
 
+[#coherent-agents-caches,reftext="Coherent Agents and Caches"]
 === Coherent Agents and Caches
 
 For a given memory location, a _set of coherent agents_ consists of the agents
@@ -108,58 +112,60 @@ The coherent agents within such a set shall access a given memory location with
 the same physical address and the same physical memory attributes; however, if
 the coherence PMA for a given agent indicates a given memory location is not
 coherent, that agent shall not be a member of a set of coherent agents with any
-other agent for that memory location.
+other agent for that memory location and shall be the sole member of a set of
+coherent agents consisting of itself.
 
 An agent who is a member of a set of coherent agents is said to be _coherent_
 with respect to the other agents in the set. On the other hand, an agent who is
 _not_ a member is said to be _non-coherent_ with respect to the agents in the
 set.
 
-Caches introduce the possibility of multiple copies of a given cache block, and
-an _implementation-specific_ mechanism keeps those copies coherent with respect
-to the explicit memory accesses from a given set of coherent agents. A cache
-kept coherent by such a mechanism is known as a _coherent cache_, and the
-operations performed by CBO instructions affect the copies of cache blocks in
-the coherent caches that can be accessed by the set of coherent agents.
-
-Coherent caches have the following behaviors:
-
-* A coherent cache may allocate a copy of a cache block and perform a read
-  transfer from another cache or from memory at any time
-
-* A coherent cache may deallocate a copy of a cache block and perform a write
-  transfer to another cache at any time
-
-* A coherent cache may deallocate a copy of a cache block and perform a write
-  transfer to memory at any time, provided that the data in the copy have been
-  modified by a store operation performed by a coherent agent since the previous
-  write transfer to memory
-
-*FIXME_FIXME_FIXME_FIXME_FIXME*
-  
-
-
-* In the absence of an invalidate operation performed by a coherent agent, at
-  least one coherent cache shall perform a write transfer to memory if the data
-  in a copy have been modified by a store operation 
-
-
-In the absence of an invalidate operation
-performed by a coherent agent (see <<#Zicbom>>), at least one coherent cache
-shall write the cache block to the underlying memory locations if a coherent
-agent performed a store operation to the cache block; otherwise, no coherent
-cache may perform a write transfer of the cache block to the underlying memory
-locations.
+Caches introduce the possibility that multiple copies of a given cache block may
+be present in a system at the same time. An _implementation-specific_ mechanism
+keeps these copies coherent with respect to the load and store operations from
+the agents in the set of coherent agents. Additionally, if a coherent agent in
+the set executes a CBO instruction that specifies the cache block, the resulting
+operation shall apply to any and all of the copies in the caches that can be
+accessed by the load and store operations from the coherent agents.
 
 ****
 
-_The above restrictions ensure that a "clean" copy will not be written back into
-memory, eliminating the possibility that data transferred from memory prior to
-a write transfer from a non-coherent agent will overwrite the data written by the non-coherent
-agent._
+_An operation from a CBO instruction is defined to operate only on the copies of
+a cache block that are cached in the caches accessible by the explicit memory
+accesses performed by the set of coherent agents._
 
 ****
 
+The set of caches subject to the above mechanism form a _set of coherent
+caches_, and each coherent cache has the following behaviors, assuming all
+operations are performed by the agents in a set of coherent agents:
+
+* A coherent cache is permitted to allocate and deallocate copies of a cache
+  block and perform read and write transfers as described in <<#memory-caches>> 
+
+* A coherent cache is permitted to perform a write transfer to memory provided
+  that a store operation has modified the data in the cache block since the most
+  recent invalidate, clean, or flush operation on the cache block
+
+* At least one coherent cache is responsible for performing a write transfer to
+  memory once a store operation has modified the data in the cache block until
+  the next invalidate, clean, or flush operation on the cache block, after which
+  no coherent cache is responsible (or permitted) to perform a write transfer to
+  memory until the next store operation has modified the data in the cache block
+
+* A coherent cache is required to perform a write transfer to memory if a store
+  operation has modified the data in the cache block since the most recent
+  invalidate, clean, or flush operation on the cache block and if the next clean
+  or flush operation requires a write transfer to memory
+
+****
+
+_The above restrictions ensure that a "clean" copy of a cache block, fetched by
+a read transfer from memory and unmodified by a store operation, cannot later
+overwrite the copy of the cache block in memory updated by a write transfer to
+memory from a non-coherent agent._
+
+****
 
 === Memory Ordering
 
@@ -260,18 +266,19 @@ nor virtual instruction exceptions.
 
 A cache-block management instruction is permitted to access the specified cache
 block if the translation table permits instruction fetches or load instructions
-to access the cache block; otherwise, the instruction raises a store page fault
-exception or a store guest-page fault exception.
+to access the cache block in the same privilege mode; otherwise, the instruction
+raises a store page fault exception or a store guest-page fault exception.
 
 A cache-block zero instruction is permitted to access the specified cache block
-if the translation table permits store instructions to access the cache block;
-otherwise, the instruction raises a store page fault exception or a store
-guest-page fault exception.
+if the translation table permits store instructions to access the cache block in
+the same privilege mode; otherwise, the instruction raises a store page fault
+exception or a store guest-page fault exception.
 
 A cache-block prefetch instruction is permitted to access the specified cache
 block if the translation table permits instruction fetches or load instructions
-to access the cache block; otherwise, the instruction is not permitted to access
-any caches or memory and does not raise any exceptions.
+to access the cache block in the same privilege mode; otherwise, the instruction
+is not permitted to access any caches or memory and does not raise any
+exceptions.
 
 ****
 
@@ -289,17 +296,24 @@ With respect to a given cache block, the CMO extensions impose the following
 constraints on the PMAs and the PMP access control bits if any physical address
 in the cache block may be designated cacheable:
 
-* The PMAs shall be the same for _all_ physical addresses in the cache block
+* The PMAs shall be the same for _all_ physical addresses in the cache block,
+  and if write permission is granted by the supported access type PMAs, read
+  permission shall also be granted
 
 * The PMP access control bits shall be the same for _all_ physical addresses in
-  the cache block and shall be consistent with the supported access type PMAs
-
-* If write permission is granted by the supported access type PMAs and the PMP
-  access control bits, read permission shall also be granted
+  the cache block, and if write permission is granted by the PMP access control
+  bits, read permission shall also be granted
 
 If none of the physical addresses in a cache block may be designated cacheable,
 the above constraints need not be met; however, if the constraints are not met
 for any reason, the behavior of a CMO instruction is UNSPECIFIED.
+
+****
+
+_This specification assumes that the above constraints will typically be met for
+main memory regions and may be met for certain I/O regions._
+
+****
 
 The Zicboz extension introduces an additional supported access type PMA for
 cache-block zero instructions. Main memory regions are required to support
@@ -308,20 +322,21 @@ whether accesses by cache-block zero instructions are supported.
 
 A cache-block management instruction is permitted to access the specified cache
 block if the supported access type PMAs and the PMP access control bits permit
-instruction fetches or load instructions to access the cache block; otherwise,
-the instruction raises a store access fault exception.
+instruction fetches or load instructions to access the cache block in the same
+privilege mode; otherwise, the instruction raises a store access fault
+exception.
 
 A cache-block zero instruction is permitted to access the specified cache block
 if the supported access type PMAs include cache-block zero instructions and if
 the supported access type PMAs and the PMP access control bits permit store
-instructions to access the cache block; otherwise, the instruction raises a
-store access fault exception.
+instructions to access the cache block in the same privilege mode; otherwise,
+the instruction raises a store access fault exception.
 
 A cache-block prefetch instruction is permitted to access the specified cache
 block if the supported access type PMAs and the PMP access control bits permit
-instruction fetches or load instructions to access the cache block; otherwise,
-the instruction is not permitted to access any caches or memory and does not
-raise any exceptions.
+instruction fetches or load instructions to access the cache block in the same
+privilege mode; otherwise, the instruction is not permitted to access any caches
+or memory and does not raise any exceptions.
 
 ==== Address Misaligned Exceptions
 
