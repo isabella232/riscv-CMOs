@@ -64,11 +64,10 @@ the copy were modified by a store operation. Additional details are discussed in
 
 === Cache-Block Operations
 
-Executing a CBO instruction results in one or more explicit memory accesses that
-perform operations on the cache blocks identified by the instruction. In
-general, a CBO instruction may identify one or more cache blocks; however, in
-the initial set of CMO extensions, CBO instructions identify a single cache
-block only.
+A CBO instruction causes one or more operations to be performed on the cache
+blocks identified by the instruction. In general, a CBO instruction may identify
+one or more cache blocks; however, in the initial set of CMO extensions, CBO
+instructions identify a single cache block only.
 
 A cache-block maintenance instruction performs one of the following operations,
 relative to the copy of a given cache block allocated in a given cache:
@@ -149,7 +148,7 @@ In the absence of an invalidate operation
 performed by a coherent agent (see <<#Zicbom>>), at least one coherent cache
 shall write the cache block to the underlying memory locations if a coherent
 agent performed a store operation to the cache block; otherwise, no coherent
-cache may perform a write operation of the cache block to the underlying memory
+cache may perform a write transfer of the cache block to the underlying memory
 locations.
 
 ****
@@ -161,7 +160,6 @@ agent._
 
 ****
 
-FIXME: coherent instruction caches
 
 === Memory Ordering
 
@@ -171,7 +169,7 @@ The preserved program order (abbreviated _PPO_) rules are defined by the RVWMO
 memory ordering model. How the operations resulting from CMO instructions fit
 into these rules is described below.
 
-For cache block management instructions, the resulting invalidate, clean, and
+For cache-block management instructions, the resulting invalidate, clean, and
 flush operations behave as stores in the PPO rules subject to one additional
 overlapping address rule. Specifically, if _a_ precedes _b_ in program order,
 then _a_ will precede _b_ in the global memory order if:
@@ -192,10 +190,10 @@ Additionally, invalidate, clean, and flush operations are classified as W or O
 addresses) for the purposes of predecessor and successor sets in `FENCE`
 instructions.
 
-For cache block zero instructions, the resulting store operations simply 
+For cache-block zero instructions, the resulting store operations simply 
 behave as stores in the PPO rules.
 
-Finally, for cache block prefetch instructions, the resulting operations are
+Finally, for cache-block prefetch instructions, the resulting operations are
 _not_ ordered by the PPO rules.
 
 ==== Load Values
@@ -241,134 +239,95 @@ any time._
 Similar to load and store instructions, CMO instructions are memory access
 instructions that compute an effective address. The effective address is
 ultimately translated into a physical address based on the privilege mode and
-enabled translation mechanisms.
+the enabled translation mechanisms.
 
 Execution of certain CMO instructions may result in traps due to CSR state,
-described in the <<#csr_state>> section, or due to the various address
-translation and protection mechanisms. The trapping behavior of CMO instructions
-is described in the following sections.
+described in the <<#csr_state>> section, or due to the address translation and
+protection mechanisms. The trapping behavior of CMO instructions is described in
+the following sections.
 
 ==== Illegal Instruction and Virtual Instruction Exceptions
 
-Cache block management instructions and cache block zero instructions may take
-an illegal instruction exception depending on the _current privilege mode_ and
-the state of the CMO control registers described in the <<#csr_state>> section.
-The current privilege mode refers to the privilege mode of the hart at the time
-the instruction is executed.
+Cache-block management instructions and cache-block zero instructions may raise
+illegal instruction exceptions or virtual instruction exceptions depending on
+the current privilege mode and the state of the CMO control registers described
+in the <<#csr_state>> section.
 
-Cache block prefetch instructions do _not_ take illegal instruction exceptions.
-
-Additionally, CMO instructions do _not_ take virtual instruction exceptions.
+Cache-block prefetch instructions raise neither illegal instruction exceptions
+nor virtual instruction exceptions.
 
 ==== Page Fault and Guest-Page Fault Exceptions
 
-During address translation, CMO instructions may take a page fault depending on
-the type of instruction, the _effective privilege mode_ (as determined by the
-`MPRV`, `MPV`, and `MPP` bits in `mstatus`) of the resulting access, and the
-permissions granted by the page table entry (PTE). If two-stage address
-translation is enabled, CMO instructions may also take a guest-page fault.
+A cache-block management instruction is permitted to access the specified cache
+block if the translation table permits instruction fetches or load instructions
+to access the cache block; otherwise, the instruction raises a store page fault
+exception or a store guest-page fault exception.
 
-A cache block management instruction requires read (`R=1`), write (`W=1`), or
-execute (`X=1`) permission (given a legal PTE encoding for the `XWR` bits, as
-specified by the privileged architecture) and, if applicable, user access
-(`U=1`) in the effective privilege mode; otherwise, the instruction takes a
-store page fault exception.
+A cache-block zero instruction is permitted to access the specified cache block
+if the translation table permits store instructions to access the cache block;
+otherwise, the instruction raises a store page fault exception or a store
+guest-page fault exception.
 
-A cache block zero instruction requires write (`W=1`) permission (given a legal
-PTE encoding for the `XWR` bits, as specified by the privileged architecture)
-and, if applicable, user access (`U=1`) in the effective privilege mode;
-otherwise, the instruction takes a store page fault exception.
-
-If G-stage address translation is enabled, the above instructions take a 
-store guest-page fault if the G-stage PTE does _not_ permit the access.
-
-A cache block prefetch instruction requires read (`R=1`), write (`W=1`), or
-execute (`X=1`) permission (given a legal PTE encoding for the `XWR` bits, as
-specified by the privileged architecture) and, if applicable, user access
-(`U=1`) in the effective privilege mode. In addition, an implementation may
-require any of the following to perform a memory access:
-
-* `PREFETCH.R` may require read (`R=1`) permission
-* `PREFETCH.W` may require write (`W=1`) permission
-* `PREFETCH.I` may require execute (`X=1`) permission
-
-If the required permission is _not_ granted, however, the instruction does _not_
-take a page fault or guest-page fault exception and retires without performing a
-memory access.
-
-===== Effect of other `xstatus` bits
-
-The `mstatus.MXR` bit (also `sstatus.MXR`) and the `vsstatus.MXR` bit do _not_
-affect the execution of CMO instructions.
-
-The `mstatus.SUM` bit (also `sstatus.SUM`) and the `vsstatus.SUM` bit do _not_
-affect the execution of CMO instructions beyond modifying permissions for
-S/HS-mode and VS-mode accesses as specified by the privileged architecture.
-
-==== Access Fault Exception
-
-A CMO instruction may take an access fault exception, as detailed in the
-privileged architecture specification, that interrupts the address translation
-process. Assuming the address translation process completes with a valid
-translation, a CMO instruction may also take an access fault exception depending
-on the type of instruction, the effective privilege mode of the resulting
-access, and the permissions granted by the physical memory protection (PMP) unit
-and the physical memory attributes (PMAs).
+A cache-block prefetch instruction is permitted to access the specified cache
+block if the translation table permits instruction fetches or load instructions
+to access the cache block; otherwise, the instruction is not permitted to access
+any caches or memory and does not raise any exceptions.
 
 ****
 
-_For now, we assume two things about PMAs:_
-
-. _PMAs are the same for all physical addresses in a cache block_
-. _Memory that can be cached cannot be write-only_
+_As with load and store instructions, the privilege mode of a CMO instruction is
+modified by the `MPRV`, `MPV`, and `MPP` bits in `mstatus` and the `SUM` bit in
+either `mstatus/sstatus` or `vsstatus`. The `MXR` bit in either
+`mstatus/sstatus` or `vsstatus` does not affect the privilege mode of a CMO
+instruction._
 
 ****
 
-Read (`R`), write (`W`), and execute (`X`) permissions are granted by the PMP
-and the PMAs. Although the PMP may grant different permissions to different
-physical addresses in a cache block, the PMAs for a cache block shall be the
-same for _all_ physical addresses in the cache block and read permission shall
-be granted if write permission has been granted. If these PMA constraints are
-_not_ met, the behavior of a CMO instruction is UNSPECIFIED.
+==== Access Fault Exceptions
 
-For the purposes of access fault determination, the following terms are defined
-for a given physical address:
+With respect to a given cache block, the CMO extensions impose the following
+constraints on the PMAs and the PMP access control bits if any physical address
+in the cache block may be designated cacheable:
 
-* _joint read permission_ is granted when both the PMP and PMAs allow read
-  access to the physical address
-* _joint write permission_ is granted when both the PMP and PMAs allow write
-  access to the physical address
-* _joint execute permission_ is granted when both the PMP and PMAs allow execute
-  access to the physical address
+* The PMAs shall be the same for _all_ physical addresses in the cache block
 
-A cache block management instruction requires joint read, joint write, or joint
-execute permission (given legal PMA and PMP encodings for the `XWR` bits, as
-specified by the privileged architecture) for each physical address in a cache
-block; otherwise, the instruction takes a store access fault exception.
+* The PMP access control bits shall be the same for _all_ physical addresses in
+  the cache block and shall be consistent with the supported access type PMAs
 
-A cache block zero instruction requires joint write permission (given legal PMA
-and PMP encodings for the `XWR` bits, as specified by the privileged
-architecture) for each physical address in a cache block; otherwise, the
-instruction takes a store access fault exception.
+* If write permission is granted by the supported access type PMAs and the PMP
+  access control bits, read permission shall also be granted
 
-A cache block prefetch instruction requires joint read, joint write, or joint
-execute permission (given legal PMA and PMP encodings for the `XWR` bits, as
-specified by the privileged architecture) for each physical address in a cache
-block. In addition, an implementation may require any of the following to
-perform a memory access:
+If none of the physical addresses in a cache block may be designated cacheable,
+the above constraints need not be met; however, if the constraints are not met
+for any reason, the behavior of a CMO instruction is UNSPECIFIED.
 
-* `PREFETCH.R` may require joint read permission
-* `PREFETCH.W` may require joint write permission
-* `PREFETCH.I` may require joint execute permission
+The Zicboz extension introduces an additional supported access type PMA for
+cache-block zero instructions. Main memory regions are required to support
+accesses by cache-block zero instructions; however, I/O regions may specify
+whether accesses by cache-block zero instructions are supported.
 
-If the required permission is _not_ granted, however, the instruction does _not_
-take an access fault exception and retires without performing a memory access.
+A cache-block management instruction is permitted to access the specified cache
+block if the supported access type PMAs and the PMP access control bits permit
+instruction fetches or load instructions to access the cache block; otherwise,
+the instruction raises a store access fault exception.
 
-==== Address Misaligned Exception
+A cache-block zero instruction is permitted to access the specified cache block
+if the supported access type PMAs include cache-block zero instructions and if
+the supported access type PMAs and the PMP access control bits permit store
+instructions to access the cache block; otherwise, the instruction raises a
+store access fault exception.
+
+A cache-block prefetch instruction is permitted to access the specified cache
+block if the supported access type PMAs and the PMP access control bits permit
+instruction fetches or load instructions to access the cache block; otherwise,
+the instruction is not permitted to access any caches or memory and does not
+raise any exceptions.
+
+==== Address Misaligned Exceptions
 
 CMO instructions do _not_ generate address misaligned exceptions.
 
-==== Breakpoint Exception and Debug Mode Entry
+==== Breakpoint Exceptions and Debug Mode Entry
 
 Unless otherwise defined by the debug architecture specification, the behavior
 of trigger modules with respect to CMO instructions is UNSPECIFIED.
@@ -424,7 +383,7 @@ following additional trigger module behaviors:_
 
 * Memory accesses may be considered to be loads or stores depending on the
   implementation, i.e. whether an address trigger matches on these instructions
-  when `mcontrol6.load=1` or `mcontrol6.store=1` is _implementation-defined_
+  when `mcontrol6.load=1` or `mcontrol6.store=1` is _implementation-specific_
 
 _This specification also recommends that the behavior of trigger modules with
 respect to the Zicboz extension should be defined in version 1.0 of the debug
@@ -436,8 +395,8 @@ Zicbom and Zicbop extensions is expected to be defined in future extensions._
 ==== Hypervisor Extension
 
 For the purposes of writing the `mtinst` or `htinst` register on a trap, the
-following standard transformation is defined for the instructions in the Zicbom
-and Zicboz extensions:
+following standard transformation is defined for cache-block maintenance
+instructions and cache-block zero instructions:
 
 [wavedrom, , svg]
 ....
@@ -462,19 +421,19 @@ or `htinst` instead of the standard transformation defined above._
 
 === Effects on Constrained LR/SC Loops
 
-Executing any cache block management instruction (`CBO.INVAL`, `CBO.CLEAN`, or
-`CBO.FLUSH`) or a cache block zero instruction (`CBO.ZERO`) may cause a
-reservation on another hart to be lost. As a result, executing one of these
-instructions constitutes an additional event (similar to executing an
-unconditional store or an AMO instruction) that satisfies the eventuality
-guarantee of constrained LR/SC loops defined in the A extension.
+Executing a cache-block management instruction or a cache-block zero instruction
+may cause a reservation on another hart to be lost. As a result, the following
+is added to the list of events that satisfy the eventuality guarantee of
+constrained LR/SC loops, as defined in the A extension:
+
+* Some other hart executes a cache-block management instruction or a cache-block
+  zero instruction to the reservation set of the LR instruction in _H_'s
+  constrained LR/SC loop.
 
 ****
 
-_Executing any cache block prefetch instruction (`PREFETCH.I`, `PREFETCH.R`, or
-`PREFETCH.W`) does not impact the eventuality guarantee of constrained LR/SC
-loops defined in the A extension; however, these instructions may cause the
-periodic cancellation of a reservation on another hart._
+_Executing a cache-block prefetch instruction does not impact the eventuality
+guarantee of any hart's constrained LR/SC loop, as defined in the A extension._
 
 ****
 
@@ -483,8 +442,8 @@ periodic cancellation of a reservation on another hart._
 The initial set of CMO extensions requires the following information to be
 discovered by software:
 
-* The cache block size for management and prefetch instructions
-* The cache block size for zero instructions
+* The size of the cache block for management and prefetch instructions
+* The size of the cache block for zero instructions
 * CBIE support at each privilege level
 
 === Open Issues

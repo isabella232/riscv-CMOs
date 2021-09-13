@@ -21,7 +21,7 @@ Encoding::
 
 Description::
 A *cbo.clean* instruction performs a clean operation on the set of coherent
-caches accessed by the observer executing the instruction.
+caches accessed by the agent executing the instruction.
 
 Operation::
 [source,sail]

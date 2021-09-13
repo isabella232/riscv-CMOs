@@ -33,7 +33,8 @@ generic format:
 Enables the execution of the cache block invalidate instruction, `CBO.INVAL`, in
 a lower privilege mode:
 
-* `00`: The instruction takes an illegal instruction exception
+* `00`: The instruction raises an illegal instruction or virtual instruction
+  exception
 * `01`: The instruction is executed and performs a flush operation
 * `10`: _Reserved_ (implementations are expected, but not required, to treat
   this value as `00`; however, software must not rely on this behavior)
@@ -44,7 +45,8 @@ a lower privilege mode:
 Enables the execution of the cache block clean instruction, `CBO.CLEAN`, and the
 cache block flush instruction, `CBO.FLUSH`, in a lower privilege mode:
 
-* `0`: The instruction takes an illegal instruction exception
+* `0`: The instruction raises an illegal instruction or virtual instruction
+  exception
 * `1`: The instruction is executed
 
 | [7]     | `CBZE`   | Cache Block Zero instruction Enable
@@ -52,7 +54,8 @@ cache block flush instruction, `CBO.FLUSH`, in a lower privilege mode:
 Enables the execution of the cache block zero instruction, `CBO.ZERO`, in a
 lower privilege mode:
 
-* `0`: The instruction takes an illegal instruction exception
+* `0`: The instruction raises an illegal instruction or virtual instruction
+  exception
 * `1`: The instruction is executed
 
 |===
@@ -60,8 +63,9 @@ lower privilege mode:
 The x{csrname} registers control CMO instruction execution based on the _current
 privilege mode_ and the state of the appropriate CSRs, as detailed below.
 
-A cache block invalidate instruction executes or takes an illegal instruction
-exception based on the state of the `x{csrname}.CBIE` fields:
+A `CBO.INVAL` instruction executes or raises either an illegal instruction
+exception or a virtual instruction exception based on the state of the
+`x{csrname}.CBIE` fields:
 
 [source,sail,subs="attributes+"]
 --
@@ -107,8 +111,9 @@ either traps or performs a flush operation in a lower privileged level._
 
 ****
 
-A cache block clean or flush instruction executes or takes an illegal
-instruction exception based on the state of the `x{csrname}.CBCFE` bits:
+A `CBO.CLEAN` or `CBO.FLUSH` instruction executes or raises an illegal
+instruction or virtual instruction exception based on the state of the
+`x{csrname}.CBCFE` bits:
 
 [source,sail,subs="attributes+"]
 --
@@ -128,8 +133,8 @@ else
 
 --
 
-Finally, a cache block zero instruction executes or takes an illegal instruction
-exception based on the state of the `x{csrname}.CBZE` bits:
+Finally, a `CBO.ZERO` instruction executes or raises an illegal instruction or
+virtual instruction exception based on the state of the `x{csrname}.CBZE` bits:
 
 [source,sail,subs="attributes+"]
 --
@@ -151,10 +156,3 @@ else
 
 Each `x{csrname}` register is WARL; however, software should determine the legal
 values from the execution environment discovery mechanism.
-
-****
-
-_This specification suggests, but does not require, that implementations capture
-only legal values in the CSRs._
-
-****

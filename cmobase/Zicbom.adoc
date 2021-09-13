@@ -1,7 +1,7 @@
-[#Zicbom,reftext="Cache Block Management Instructions"]
-=== Cache Block Management Instructions
+[#Zicbom,reftext="Cache-Block Management Instructions"]
+=== Cache-Block Management Instructions
 
-Cache block management instructions enable software running on a set of coherent
+Cache-block management instructions enable software running on a set of coherent
 agents to communicate with a set of non-coherent agents by performing one of the
 following operations:
 
@@ -27,11 +27,11 @@ appear to all non-coherent agents.
 
 ****
 
-_The Zicbom extension does not prohibit observers that fall outside of the above
+_The Zicbom extension does not prohibit agents that fall outside of the above
 architectural definition; however, software cannot rely on the defined cache
-operations to have the desired effects with respect to those observers._
+operations to have the desired effects with respect to those agents._
 
-_Future extensions may define different sets of observers for the purposes of
+_Future extensions may define different sets of agents for the purposes of
 performance optimization._
 
 ****
