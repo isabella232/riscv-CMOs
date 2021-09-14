@@ -6,12 +6,12 @@ agents to communicate with a set of non-coherent agents by performing one of the
 following operations:
 
 * An invalidate operation makes data from store operations performed by a set of
-  non-coherent agents appear to the set of coherent agents at a point common to
+  non-coherent agents visible to the set of coherent agents at a point common to
   both sets by deallocating all copies of a cache block from the set of coherent
   caches up to that point
   
 * A clean operation makes data from store operations performed by the set of
-  coherent agents appear to a set of non-coherent agents at a point common to
+  coherent agents visible to a set of non-coherent agents at a point common to
   both sets by performing a write transfer of a copy of a cache block to that
   point provided a coherent agent performed a store operation that modified the
   data in the cache block since the previous invalidate, clean, or flush
@@ -22,9 +22,9 @@ following operations:
 
 In the Zicbom extension, the instructions operate to a point common to _all_
 agents in the system. In other words, an invalidate operation ensures that store
-operations from all non-coherent agents appear to agents in the set of coherent
+operations from all non-coherent agents visible to agents in the set of coherent
 agents, and a clean operation ensures that store operations from coherent agents
-appear to all non-coherent agents.
+visible to all non-coherent agents.
 
 ****
 

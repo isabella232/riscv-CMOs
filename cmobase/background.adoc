@@ -77,8 +77,9 @@ relative to the copy of a given cache block allocated in a given cache:
 
 * An _invalidate operation_ deallocates the copy of the cache block
 
-* A _clean operation_ performs a write transfer if the data in the copy of the
-  cache block have been modified by a store operation
+* A _clean operation_ performs a write transfer to another cache or to memory if
+  the data in the copy of the cache block have been modified by a store
+  operation
 
 * A _flush operation_ atomically performs a clean operation followed by an
   invalidate operation
@@ -288,13 +289,21 @@ either `mstatus/sstatus` or `vsstatus`. The `MXR` bit in either
 `mstatus/sstatus` or `vsstatus` does not affect the privilege mode of a CMO
 instruction._
 
+_This specification expects that implementations will process cache-block
+management instructions like store/AMO instructions, so store/AMO exceptions are
+appropriate for these instructions, regardless of the permissions required._
+
+_Note that the permission to execute a store instruction implies the permission
+to execute a load instruction, so store instructions are omitted from the list
+of permissions required to execute cache-block management and prefetch
+instructions._
+
 ****
 
 ==== Access Fault Exceptions
 
-With respect to a given cache block, the CMO extensions impose the following
-constraints on the PMAs and the PMP access control bits if any physical address
-in the cache block may be designated cacheable:
+The CMO extensions impose the following constraints on the physical addresses in
+a given cache block:
 
 * The PMAs shall be the same for _all_ physical addresses in the cache block,
   and if write permission is granted by the supported access type PMAs, read
@@ -304,9 +313,8 @@ in the cache block may be designated cacheable:
   the cache block, and if write permission is granted by the PMP access control
   bits, read permission shall also be granted
 
-If none of the physical addresses in a cache block may be designated cacheable,
-the above constraints need not be met; however, if the constraints are not met
-for any reason, the behavior of a CMO instruction is UNSPECIFIED.
+If the above constraints are not met, the behavior of a CBO instruction is
+UNSPECIFIED.
 
 ****
 
@@ -461,13 +469,5 @@ discovered by software:
 * The size of the cache block for zero instructions
 * CBIE support at each privilege level
 
-=== Open Issues
-
-* Behavior of Zicbom instructions in context of non-cacheable attributes
-** Relevant primarily when changing attributes dynamically
-
-* Define misaligned exception for CBO.ZERO to emulate operations in certain
-  cases, e.g. for certain PMA combinations?
-** Or define what has to work at a platform level?
-
-The above items primarily correspond to future work.
+Other general cache characteristics may also be specified in the discovery
+mechanism.
