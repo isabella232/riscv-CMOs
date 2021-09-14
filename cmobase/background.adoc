@@ -72,7 +72,7 @@ blocks identified by the instruction. In general, a CBO instruction may identify
 one or more cache blocks; however, in the initial set of CMO extensions, CBO
 instructions identify a single cache block only.
 
-A cache-block maintenance instruction performs one of the following operations,
+A cache-block management instruction performs one of the following operations,
 relative to the copy of a given cache block allocated in a given cache:
 
 * An _invalidate operation_ deallocates the copy of the cache block
@@ -410,7 +410,7 @@ Zicbom and Zicbop extensions is expected to be defined in future extensions._
 ==== Hypervisor Extension
 
 For the purposes of writing the `mtinst` or `htinst` register on a trap, the
-following standard transformation is defined for cache-block maintenance
+following standard transformation is defined for cache-block management
 instructions and cache-block zero instructions:
 
 [wavedrom, , svg]

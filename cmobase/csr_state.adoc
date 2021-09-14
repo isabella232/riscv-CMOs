@@ -4,8 +4,8 @@
 ****
 
 _The CMO extensions rely on state in {csrname} CSRs that will be defined in a
-future extension. If this CSR extension is not ratified, the CMO extension will
-define its own CSRs._
+future update to the privileged architecture. If this CSR update is not
+ratified, the CMO extension will define its own CSRs._
 
 ****
 
@@ -36,8 +36,7 @@ a lower privilege mode:
 * `00`: The instruction raises an illegal instruction or virtual instruction
   exception
 * `01`: The instruction is executed and performs a flush operation
-* `10`: _Reserved_ (implementations are expected, but not required, to treat
-  this value as `00`; however, software must not rely on this behavior)
+* `10`: _Reserved_
 * `11`: The instruction is executed and performs an invalidate operation
 
 | [6]     | `CBCFE`  | Cache Block Clean and Flush instruction Enable
@@ -60,8 +59,8 @@ lower privilege mode:
 
 |===
 
-The x{csrname} registers control CMO instruction execution based on the _current
-privilege mode_ and the state of the appropriate CSRs, as detailed below.
+The x{csrname} registers control CBO instruction execution based on the current
+privilege mode and the state of the appropriate CSRs, as detailed below.
 
 A `CBO.INVAL` instruction executes or raises either an illegal instruction
 exception or a virtual instruction exception based on the state of the
@@ -70,28 +69,34 @@ exception or a virtual instruction exception based on the state of the
 [source,sail,subs="attributes+"]
 --
 
-// this pseudocode assumes the expected implementation of the reserved encoding
-if (((curr_priv_mode == S/HS) && m{csrname}.CBIE[0]) ||
-    ((curr_priv_mode == U)    && m{csrname}.CBIE[0] && s{csrname}.CBIE[0]) ||
-    ((curr_priv_mode == VS)   && m{csrname}.CBIE[0] && h{csrname}.CBIE[0]) ||
-    ((curr_priv_mode == VU)   &&
-     m{csrname}.CBIE[0] && s{csrname}.CBIE[0] && h{csrname}.CBIE[0]))
+// illegal instruction exceptions
+if (((priv_mode != M) && (m{csrname}.CBIE == 00)) ||
+    ((priv_mode == U) && (s{csrname}.CBIE == 00)))
 {
-  if (((curr_priv_mode == S/HS) && m{csrname}.CBIE[1]) ||
-      ((curr_priv_mode == U)    && m{csrname}.CBIE[1] && s{csrname}.CBIE[1]) ||
-      ((curr_priv_mode == VS)   && m{csrname}.CBIE[1] && h{csrname}.CBIE[1]) ||
-      ((curr_priv_mode == VU)   &&
-       m{csrname}.CBIE[1] && s{csrname}.CBIE[1] && h{csrname}.CBIE[1]))
-  {
-    <execute CBO.INVAL and perform an invalidate operation>
-  } else {
-    <execute CBO.INVAL and perform a flush operation
-  }
+  <raise illegal instruction exception>
 }
+// virtual instruction exceptions
+else if (((priv_mode == VS) && (h{csrname}.CBIE == 00)) ||
+         ((priv_mode == VU) && ((h{csrname}.CBIE == 00) || (s{csrname}.CBIE == 00))))
+{
+  <raise virtual instruction exception>
+}
+// execute instruction
 else
 {
-  <illegal instruction trap>
+  if (((priv_mode != M) && (m{csrname}.CBIE == 01)) ||
+      ((priv_mode == U) && (s{csrname}.CBIE == 01)) ||
+      ((priv_mode == VS) && (h{csrname}.CBIE == 01)) ||
+      ((priv_mode == VU) && ((h{csrname}.CBIE == 01) || (s{csrname}.CBIE == 01))))
+  {
+    <execute CBO.INVAL and perform flush operation>
+  }
+  else
+  {
+    <execute CBO.INVAL and perform invalidate operation>
+  }
 }
+
 
 --
 
@@ -118,17 +123,22 @@ instruction or virtual instruction exception based on the state of the
 [source,sail,subs="attributes+"]
 --
 
-if (((curr_priv_mode == S/HS) && m{csrname}.CBCFE) ||
-    ((curr_priv_mode == U)    && m{csrname}.CBCFE && s{csrname}.CBCFE) ||
-    ((curr_priv_mode == VS)   && m{csrname}.CBCFE && h{csrname}.CBCFE) ||
-    ((curr_priv_mode == VU)   &&
-     m{csrname}.CBCFE && s{csrname}.CBCFE && h{csrname}.CBCFE))
+// illegal instruction exceptions
+if (((priv_mode != M) && !m{csrname}.CBCFE) ||
+    ((priv_mode == U) && !s{csrname}.CBCFE))
 {
-  <execute CBO.CLEAN or CBO.FLUSH>
+  <raise illegal instruction exception>
 }
+// virtual instruction exceptions
+else if (((priv_mode == VS) && !h{csrname}.CBCFE) ||
+         ((priv_mode == VU) && !(h{csrname}.CBCFE && s{csrname}.CBCFE)))
+{
+  <raise virtual instruction exception>
+}
+// execute instruction
 else
 {
-  <illegal instruction trap>
+  <execute CBO.CLEAN or CBO.FLUSH>
 }
 
 --
@@ -139,17 +149,22 @@ virtual instruction exception based on the state of the `x{csrname}.CBZE` bits:
 [source,sail,subs="attributes+"]
 --
 
-if (((curr_priv_mode == S/HS) && m{csrname}.CBZE) ||
-    ((curr_priv_mode == U)    && m{csrname}.CBZE && s{csrname}.CBZE) ||
-    ((curr_priv_mode == VS)   && m{csrname}.CBZE && h{csrname}.CBZE) ||
-    ((curr_priv_mode == VU)   &&
-     m{csrname}.CBZE && s{csrname}.CBZE && h{csrname}.CBZE))
+// illegal instruction exceptions
+if (((priv_mode != M) && !m{csrname}.CBZE) ||
+    ((priv_mode == U) && !s{csrname}.CBZE))
 {
-  <execute CBO.ZERO>
+  <raise illegal instruction exception>
 }
+// virtual instruction exceptions
+else if (((priv_mode == VS) && !h{csrname}.CBZE) ||
+         ((priv_mode == VU) && !(h{csrname}.CBZE && s{csrname}.CBZE)))
+{
+  <raise virtual instruction exception>
+}
+// execute instruction
 else
 {
-  <illegal instruction trap>
+  <execute CBO.ZERO>
 }
 
 --

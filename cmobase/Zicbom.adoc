@@ -5,7 +5,7 @@ Cache-block management instructions enable software running on a set of coherent
 agents to communicate with a set of non-coherent agents by performing one of the
 following operations:
 
-* An invalidate operation makes data from store operations performed a set of
+* An invalidate operation makes data from store operations performed by a set of
   non-coherent agents appear to the set of coherent agents at a point common to
   both sets by deallocating all copies of a cache block from the set of coherent
   caches up to that point
