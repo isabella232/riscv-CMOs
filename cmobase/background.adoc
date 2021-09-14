@@ -133,7 +133,9 @@ accessed by the load and store operations from the coherent agents.
 
 _An operation from a CBO instruction is defined to operate only on the copies of
 a cache block that are cached in the caches accessible by the explicit memory
-accesses performed by the set of coherent agents._
+accesses performed by the set of coherent agents. This includes copies of a
+cache block in caches that are accessed only indirectly by load and store
+operations, e.g. coherent instruction caches._
 
 ****
 
@@ -167,6 +169,10 @@ overwrite the copy of the cache block in memory updated by a write transfer to
 memory from a non-coherent agent._
 
 ****
+
+A non-coherent agent may initiate a cache-block operation that operates on the
+set of coherent caches accessed by a set of coherent agents. The mechanism to
+perform such an operation is _implementation-specific_.
 
 === Memory Ordering
 
