@@ -1,37 +1,38 @@
-[#Zicbom,reftext="Cache Block Management Instructions"]
-=== Cache Block Management Instructions
+[#Zicbom,reftext="Cache-Block Management Instructions"]
+=== Cache-Block Management Instructions
 
-Cache block management instructions enable software running on a set of coherent
-observers to communicate with a set of non-coherent observers by performing one
-of the following operations:
+Cache-block management instructions enable software running on a set of coherent
+agents to communicate with a set of non-coherent agents by performing one of the
+following operations:
 
-* An _invalidate operation_ makes store operations from a set of non-coherent
-  observers appear to the set of coherent observers at a point common to both
-  sets by removing all copies of a cache block from the coherent caches up to
-  that point
+* An invalidate operation makes data from store operations performed by a set of
+  non-coherent agents visible to the set of coherent agents at a point common to
+  both sets by deallocating all copies of a cache block from the set of coherent
+  caches up to that point
   
-* A _clean operation_ makes store operations from the set of coherent observers
-  appear to a set of non-coherent observers at a point common to both sets by
-  performing a write operation of a copy of a cache block to that point,
-  provided a coherent observer performed a store operation to the cache block
-  since the previous such write operation
+* A clean operation makes data from store operations performed by the set of
+  coherent agents visible to a set of non-coherent agents at a point common to
+  both sets by performing a write transfer of a copy of a cache block to that
+  point provided a coherent agent performed a store operation that modified the
+  data in the cache block since the previous invalidate, clean, or flush
+  operation on the cache block
   
-* A _flush operation_ atomically performs a clean operation followed by an
+* A flush operation atomically performs a clean operation followed by an
   invalidate operation
 
 In the Zicbom extension, the instructions operate to a point common to _all_
-observers in the system. In other words, an invalidate operation ensures that
-store operations from all non-coherent observers appear to observers in the set
-of coherent observers, and a clean operation ensures that store operations from
-coherent observers appear to all non-coherent observers.
+agents in the system. In other words, an invalidate operation ensures that store
+operations from all non-coherent agents visible to agents in the set of coherent
+agents, and a clean operation ensures that store operations from coherent agents
+visible to all non-coherent agents.
 
 ****
 
-_The Zicbom extension does not prohibit observers that fall outside of the above
+_The Zicbom extension does not prohibit agents that fall outside of the above
 architectural definition; however, software cannot rely on the defined cache
-operations to have the desired effects with respect to those observers._
+operations to have the desired effects with respect to those agents._
 
-_Future extensions may define different sets of observers for the purposes of
+_Future extensions may define different sets of agents for the purposes of
 performance optimization._
 
 ****

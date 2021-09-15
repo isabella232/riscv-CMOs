@@ -7,21 +7,20 @@ CMO instructions are defined in the following extensions:
 * <<#Zicboz>>
 * <<#Zicbop>>
 
-Cache block management instructions operate on cache blocks containing the
+Cache-block management instructions operate on cache blocks containing the
 effective address equal to the base address specified in _rs1_.
 
-Cache block zero instructions operate on cache blocks, or the memory locations
+Cache-block zero instructions operate on cache blocks, or the memory locations
 corresponding to cache blocks, containing the effective address equal to the
 base address specified in _rs1_.
 
-Cache block prefetch instructions operate on cache blocks containing the
+Cache-block prefetch instructions operate on cache blocks containing the
 effective address equal to the sum of the base address specified in _rs1_ and a
 sign-extended offset encoded in the _imm_ field, where offset[4:0] shall equal
 0b00000.
 
 In all cases, the effective address is translated into a corresponding physical
-address by the translation mechanisms appropriate in the effective privilege
-level.
+address by the appropriate translation mechanisms.
 
 include::Zicbom.adoc[]
 include::Zicboz.adoc[]

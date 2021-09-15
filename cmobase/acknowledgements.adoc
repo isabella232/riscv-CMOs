@@ -10,8 +10,9 @@ John Ingalls,
 David Kruckemyer,
 Josh Scheid,
 Philipp Tomsich,
+Paul Walmsley,
 and
-Paul Walmsley
+Derek Williams
 
 We express our gratitude to everyone that contributed to, reviewed, or improved
 this specification through their comments and questions.

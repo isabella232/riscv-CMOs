@@ -2,7 +2,7 @@
 === prefetch.i
 
 Synopsis::
-Provide a hint to hardware that the cache block containing the effective address
+Provide a HINT to hardware that the cache block containing the effective address
 is likely to be accessed by an instruction fetch in the near future
 
 Mnemonic::
@@ -24,9 +24,15 @@ Encoding::
 Description::
 A *prefetch.i* instruction indicates to hardware that the cache block containing
 the effective address is likely to be accessed by an instruction fetch in the
-near future. An implementation may opt to cache a copy of the cache block in a
-cache accessed by an instruction fetch in order to improve memory access
-latency, but this behavior is _not_ required.
+near future.
+
+****
+
+_An implementation may opt to cache a copy of the cache block in a cache
+accessed by an instruction fetch in order to improve memory access latency, but
+this behavior is not required._
+
+****
 
 Operation::
 [source,sail]

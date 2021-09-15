@@ -1,14 +1,14 @@
 [#intro,reftext="Introduction"]
 == Introduction
 
-_Cache management operation_ (or _CMO_) instructions perform operations on
+_Cache-management operation_ (or _CMO_) instructions perform operations on
 copies of data in the memory hierarchy. In general, CMO instructions operate on
 cached copies of data, but in some cases, a CMO instruction may operate on
 memory locations directly. Furthermore, CMO instructions are grouped by
 operation into the following classes:
 
-* A _management_ instruction manipulates cached copies of data with respect to
-  sets of observers
+* A _management_ instruction manipulates cached copies of data with respect to a
+  set of agents that can access the data
 * A _zero_ instruction zeros out a range of memory locations, potentially
   allocating cached copies of data in one or more caches
 * A _prefetch_ instruction indicates to hardware that data at a given memory
@@ -17,13 +17,14 @@ operation into the following classes:
 
 This document introduces a base set of CMO ISA extensions that operate
 specifically on cache blocks or the memory locations corresponding to a cache
-block. Each of the above classes of instructions represents an extension in this
+block; these are known as _cache-block operation_ (or _CBO_) instructions. Each
+of the above classes of instructions represents an extension in this
 specification:
 
-* The _Zicbom_ extension defines a set of cache block management instructions:
+* The _Zicbom_ extension defines a set of cache-block management instructions:
   `CBO.INVAL`, `CBO.CLEAN`,  and `CBO.FLUSH`
-* The _Zicboz_ extension defines a cache block zero instruction: `CBO.ZERO`
-* The _Zicbop_ extension defines a set of cache block prefetch instructions:
+* The _Zicboz_ extension defines a cache-block zero instruction: `CBO.ZERO`
+* The _Zicbop_ extension defines a set of cache-block prefetch instructions:
   `PREFETCH.R`, `PREFETCH.W`, and `PREFETCH.I`
 
 The execution behavior of the above instructions is also modified by CSR state

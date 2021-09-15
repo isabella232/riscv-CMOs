@@ -23,9 +23,8 @@ Encoding::
 Description::
 
 A *cbo.inval* instruction performs an invalidate operation on the set of
-coherent caches accessed by the observer executing the instruction. The
-instruction may perform a flush operation, however, depending on CSR
-programming.
+coherent caches accessed by the agent executing the instruction. The instruction
+may perform a flush operation, however, depending on CSR programming.
 
 Operation::
 [source,sail]
