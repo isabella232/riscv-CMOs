@@ -43,15 +43,12 @@ specification
 * Safe transformations of operations
   * HW: safe transformations enable implementation choices
   * SW: safe transformations allow less privileged software to use ops
+* Memory ordering model (i.e. relationship to loads, stores, FENCEs, SFENCEs, etc.)
+* Discovery of block sizes and types
+* Final instruction encodings
 
 ## Open Issues
 
-Topics required to round out Phase 1:
-
-* Memory ordering model (i.e. relationship to loads, stores, FENCEs, SFENCEs, etc.)
-* Discovery of block sizes and types
-* Temporality (reuse) hints for PREFETCH operations
-* Final instruction encodings
 
 ## Roadmap
 
@@ -61,6 +58,7 @@ onward:
 * Effects of mismatched PMA/VA attributes and changing attributes
 * Additional levels or points of convergence for system optimization
 * Levels (Points of Persistence) beyond the POC for all harts and devices
+* Temporality (reuse) hints for PREFETCH operations
 * Cache Block Operations by Index
   * CBO.INVAL.IX - Invalidate Cache Block at Index
   * CBO.CLEAN.IX - Clean Cache Block at Index
