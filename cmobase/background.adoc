@@ -296,35 +296,31 @@ accesses by cache-block zero instructions; however, I/O regions may specify
 whether accesses by cache-block zero instructions are supported.
 
 A cache-block management instruction is permitted to access the specified cache
-block in a given privilege mode if a load instruction, a store instruction, or
-an instruction fetch is permitted to access the corresponding physical addresses
-in the cache block in the same privilege mode. If accessing the cache block is
-not permitted, a cache-block management instruction either raises a page fault
-or guest-page fault exception, if there is no valid translation that grants
-read, write, or execute permission, or raises a store access fault otherwise.
+block whenever a load instruction, store instruction, or instruction fetch is
+permitted to access the corresponding physical addresses. If access to the cache
+block is not permitted, a cache-block management instruction raises a store page
+fault or store guest-page fault if the address translation for the cache block
+is invalid or raises a store access fault otherwise.
 
 A cache-block zero instruction is permitted to access the specified cache block
-in a given privilege mode if a store instruction is permitted to access the
-corresponding physical addresses in the cache block in the same privilege mode
-and if the supported access type PMAs include cache-block zero instructions. If
-accessing the cache block is not permitted, a cache-block zero instruction
-either raises a page fault or guest-page fault exception, if there is no valid
-translation that grants write permission, or raises a store access fault
-otherwise.
+whenever a store instruction is permitted to access the corresponding physical
+addresses and when the PMAs indicate that cache-block zero instructions are a
+supported access type. If access to the cache block is not permitted, a
+cache-block zero instruction raises a store page fault or store guest-page fault
+if the address translation for the cache block does not permit write access or
+raises a store access fault otherwise.
 
 A cache-block prefetch instruction is permitted to access the specified cache
-block in a given privilege mode if a load instruction, a store instruction, or
-an instruction fetch is permitted to access the corresponding physical addresses
-in the cache block in the same privilege mode. If accessing the cache block is
-not permitted, a cache-block prefetch instruction does not raise any exceptions
-and shall not access any caches or memory.
+block whenever a load instruction, store instruction, or instruction fetch is
+permitted to access the corresponding physical addresses. If access to the cache
+block is not permitted, a cache-block prefetch instruction does not raise any
+exceptions and shall not access any caches or memory.
 
 ****
 
-_As with load and store instructions, the privilege mode of a CMO instruction is
-modified by the `MPRV`, `MPV`, and `MPP` bits in `mstatus` and the `SUM` bits in
-`mstatus`, `sstatus`, and `vsstatus`. The `MXR` bits in `mstatus`, `sstatus`,
-and `vsstatus` do not affect the privilege mode of a CMO instruction._
+_Similar to load and store instructions, whether a CMO instruction is permitted
+to access a cache block is affected by the `MPRV`, `MPV`, and `MPP` bits in
+`mstatus` and the `SUM` and `MXR` bits in `mstatus`, `sstatus`, and `vsstatus`._
 
 _This specification expects that implementations will process cache-block
 management instructions like store/AMO instructions, so store/AMO exceptions are
