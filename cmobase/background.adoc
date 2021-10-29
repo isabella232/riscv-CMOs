@@ -247,12 +247,7 @@ any time._
 
 ****
 
-=== Instruction Execution and Traps
-
-Similar to load and store instructions, CMO instructions are memory access
-instructions that compute an effective address. The effective address is
-ultimately translated into a physical address based on the privilege mode and
-the enabled translation mechanisms.
+=== Traps
 
 Execution of certain CMO instructions may result in traps due to CSR state,
 described in the <<#csr_state>> section, or due to the address translation and
@@ -269,55 +264,21 @@ in the <<#csr_state>> section.
 Cache-block prefetch instructions raise neither illegal instruction exceptions
 nor virtual instruction exceptions.
 
-==== Page Fault and Guest-Page Fault Exceptions
+==== Page Fault, Guest-Page Fault, and Access Fault Exceptions
 
-A cache-block management instruction is permitted to access the specified cache
-block if the translation table permits instruction fetches or load instructions
-to access the cache block in the same privilege mode; otherwise, the instruction
-raises a store page fault exception or a store guest-page fault exception.
-
-A cache-block zero instruction is permitted to access the specified cache block
-if the translation table permits store instructions to access the cache block in
-the same privilege mode; otherwise, the instruction raises a store page fault
-exception or a store guest-page fault exception.
-
-A cache-block prefetch instruction is permitted to access the specified cache
-block if the translation table permits instruction fetches or load instructions
-to access the cache block in the same privilege mode; otherwise, the instruction
-is not permitted to access any caches or memory and does not raise any
-exceptions.
-
-****
-
-_As with load and store instructions, the privilege mode of a CMO instruction is
-modified by the `MPRV`, `MPV`, and `MPP` bits in `mstatus` and the `SUM` bit in
-either `mstatus/sstatus` or `vsstatus`. The `MXR` bit in either
-`mstatus/sstatus` or `vsstatus` does not affect the privilege mode of a CMO
-instruction._
-
-_This specification expects that implementations will process cache-block
-management instructions like store/AMO instructions, so store/AMO exceptions are
-appropriate for these instructions, regardless of the permissions required._
-
-_Note that the permission to execute a store instruction implies the permission
-to execute a load instruction, so store instructions are omitted from the list
-of permissions required to execute cache-block management and prefetch
-instructions._
-
-****
-
-==== Access Fault Exceptions
-
-The CMO extensions impose the following constraints on the physical addresses in
-a given cache block:
-
-* The PMAs shall be the same for _all_ physical addresses in the cache block,
-  and if write permission is granted by the supported access type PMAs, read
-  permission shall also be granted
+Similar to load and store instructions, CMO instructions are memory access
+instructions that compute an effective address. The effective address is
+ultimately translated into a physical address based on the privilege mode and
+the enabled translation mechanisms, and the CMO extensions impose the following
+constraints on the physical addresses in a given cache block:
 
 * The PMP access control bits shall be the same for _all_ physical addresses in
   the cache block, and if write permission is granted by the PMP access control
   bits, read permission shall also be granted
+
+* The PMAs shall be the same for _all_ physical addresses in the cache block,
+  and if write permission is granted by the supported access type PMAs, read
+  permission shall also be granted
 
 If the above constraints are not met, the behavior of a CBO instruction is
 UNSPECIFIED.
@@ -335,22 +296,41 @@ accesses by cache-block zero instructions; however, I/O regions may specify
 whether accesses by cache-block zero instructions are supported.
 
 A cache-block management instruction is permitted to access the specified cache
-block if the supported access type PMAs and the PMP access control bits permit
-instruction fetches or load instructions to access the cache block in the same
-privilege mode; otherwise, the instruction raises a store access fault
-exception.
+block in a given privilege mode if a load instruction, a store instruction, or
+an instruction fetch is permitted to access the corresponding physical addresses
+in the cache block in the same privilege mode. If accessing the cache block is
+not permitted, a cache-block management instruction either raises a page fault
+or guest-page fault exception, if there is no valid translation that grants
+read, write, or execute permission, or raises a store access fault otherwise.
 
 A cache-block zero instruction is permitted to access the specified cache block
-if the supported access type PMAs include cache-block zero instructions and if
-the supported access type PMAs and the PMP access control bits permit store
-instructions to access the cache block in the same privilege mode; otherwise,
-the instruction raises a store access fault exception.
+in a given privilege mode if a store instruction is permitted to access the
+corresponding physical addresses in the cache block in the same privilege mode
+and if the supported access type PMAs include cache-block zero instructions. If
+accessing the cache block is not permitted, a cache-block zero instruction
+either raises a page fault or guest-page fault exception, if there is no valid
+translation that grants write permission, or raises a store access fault
+otherwise.
 
 A cache-block prefetch instruction is permitted to access the specified cache
-block if the supported access type PMAs and the PMP access control bits permit
-instruction fetches or load instructions to access the cache block in the same
-privilege mode; otherwise, the instruction is not permitted to access any caches
-or memory and does not raise any exceptions.
+block in a given privilege mode if a load instruction, a store instruction, or
+an instruction fetch is permitted to access the corresponding physical addresses
+in the cache block in the same privilege mode. If accessing the cache block is
+not permitted, a cache-block prefetch instruction does not raise any exceptions
+and shall not access any caches or memory.
+
+****
+
+_As with load and store instructions, the privilege mode of a CMO instruction is
+modified by the `MPRV`, `MPV`, and `MPP` bits in `mstatus` and the `SUM` bits in
+`mstatus`, `sstatus`, and `vsstatus`. The `MXR` bits in `mstatus`, `sstatus`,
+and `vsstatus` do not affect the privilege mode of a CMO instruction._
+
+_This specification expects that implementations will process cache-block
+management instructions like store/AMO instructions, so store/AMO exceptions are
+appropriate for these instructions, regardless of the permissions required._
+
+****
 
 ==== Address Misaligned Exceptions
 
@@ -450,10 +430,8 @@ or `htinst` instead of the standard transformation defined above._
 
 === Effects on Constrained LR/SC Loops
 
-Executing a cache-block management instruction or a cache-block zero instruction
-may cause a reservation on another hart to be lost. As a result, the following
-is added to the list of events that satisfy the eventuality guarantee of
-constrained LR/SC loops, as defined in the A extension:
+The following event is added to the list of events that satisfy the eventuality
+guarantee provided by constrained LR/SC loops, as defined in the A extension:
 
 * Some other hart executes a cache-block management instruction or a cache-block
   zero instruction to the reservation set of the LR instruction in _H_'s
@@ -461,8 +439,16 @@ constrained LR/SC loops, as defined in the A extension:
 
 ****
 
-_Executing a cache-block prefetch instruction does not impact the eventuality
-guarantee of any hart's constrained LR/SC loop, as defined in the A extension._
+_The above event has been added to accommodate cache coherence protocols that
+cannot distinguish between invalidations for stores and invalidations for
+cache-block management operations._
+
+_Aside from the above event, CMO instructions neither change the properties of
+constrained LR/SC loops nor modify the eventuality guarantee provided by them.
+For example, executing a CMO instruction may cause a given unconstrained LR/SC
+sequence to fail on the same hart. Additionally, executing a cache-block
+prefetch instruction does not impact the eventuality guarantee provided by
+constrained LR/SC loops executed on any hart._
 
 ****
 
