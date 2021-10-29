@@ -6,6 +6,20 @@ software intends to perform a particular type of memory access in the near
 future. The types of memory accesses are instruction fetch, data read (i.e.
 load), and data write (i.e. store).
 
+These instructions operate on the cache block whose effective address is the sum
+of the base address specified in _rs1_ and the sign-extended offset encoded in
+_imm[11:0]_, where _imm[4:0]_ shall equal `0b00000`. The effective address is
+translated into a corresponding physical address by the appropriate translation
+mechanisms.
+
+****
+
+_Cache-block prefetch instructions are encoded as ORI instructions with rd equal
+to `0b00000`; however, for the purposes of effective address calculation, this
+field is also interpreted as imm[4:0] like a store instruction._
+
+****
+
 The following instructions comprise the Zicbop extension:
 
 [%header,cols="^1,^1,4,8"]

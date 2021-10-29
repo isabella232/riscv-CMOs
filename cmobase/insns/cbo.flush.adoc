@@ -2,7 +2,7 @@
 === cbo.flush
 
 Synopsis::
-Perform a flush operation on the cache block containing the effective address
+Perform a flush operation on a cache block
 
 Mnemonic::
 cbo.flush _base_
@@ -20,7 +20,9 @@ Encoding::
 ....
 
 Description::
-A *cbo.flush* instruction performs a flush operation on the set of coherent
+
+A *cbo.flush* instruction performs a flush operation on the cache block whose
+effective address is specified in _rs1_ and operates on the set of coherent
 caches accessed by the agent executing the instruction.
 
 Operation::
