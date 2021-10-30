@@ -318,9 +318,10 @@ exceptions and shall not access any caches or memory.
 
 ****
 
-_Similar to load and store instructions, whether a CMO instruction is permitted
-to access a cache block is affected by the `MPRV`, `MPV`, and `MPP` bits in
-`mstatus` and the `SUM` and `MXR` bits in `mstatus`, `sstatus`, and `vsstatus`._
+_Like a load or store instruction, a CMO instruction may or may not be permitted
+to access a cache block based on the states of the `MPRV`, `MPV`, and `MPP` bits
+in `mstatus` and the `SUM` and `MXR` bits in `mstatus`, `sstatus`, and
+`vsstatus`._
 
 _This specification expects that implementations will process cache-block
 management instructions like store/AMO instructions, so store/AMO exceptions are
