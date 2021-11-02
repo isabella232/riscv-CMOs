@@ -442,10 +442,11 @@ cache-block management operations._
 
 _Aside from the above event, CMO instructions neither change the properties of
 constrained LR/SC loops nor modify the eventuality guarantee provided by them.
-For example, executing a CMO instruction may cause a given unconstrained LR/SC
-sequence to fail on the same hart. Additionally, executing a cache-block
-prefetch instruction does not impact the eventuality guarantee provided by
-constrained LR/SC loops executed on any hart._
+For example, executing a CMO instruction may cause a constrained LR/SC loop on
+any hart to fail periodically or may cause a unconstrained LR/SC sequence on the
+same hart to fail always. Additionally, executing a cache-block prefetch
+instruction does not impact the eventuality guarantee provided by constrained
+LR/SC loops executed on any hart._
 
 ****
 
