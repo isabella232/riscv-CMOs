@@ -266,8 +266,8 @@ nor virtual instruction exceptions.
 
 ==== Page Fault, Guest-Page Fault, and Access Fault Exceptions
 
-Similar to load and store instructions, CMO instructions are memory access
-instructions that compute an effective address. The effective address is
+Similar to load and store instructions, CMO instructions are explicit memory
+access instructions that compute an effective address. The effective address is
 ultimately translated into a physical address based on the privilege mode and
 the enabled translation mechanisms, and the CMO extensions impose the following
 constraints on the physical addresses in a given cache block:
@@ -299,16 +299,16 @@ A cache-block management instruction is permitted to access the specified cache
 block whenever a load instruction, store instruction, or instruction fetch is
 permitted to access the corresponding physical addresses. If access to the cache
 block is not permitted, a cache-block management instruction raises a store page
-fault or store guest-page fault if the address translation for the cache block
-is invalid or raises a store access fault otherwise.
+fault or store guest-page fault exception if address translation does not permit
+any access or raises a store access fault exception otherwise.
 
 A cache-block zero instruction is permitted to access the specified cache block
 whenever a store instruction is permitted to access the corresponding physical
 addresses and when the PMAs indicate that cache-block zero instructions are a
 supported access type. If access to the cache block is not permitted, a
 cache-block zero instruction raises a store page fault or store guest-page fault
-if the address translation for the cache block does not permit write access or
-raises a store access fault otherwise.
+exception if address translation does not permit write access or raises a store
+access fault exception otherwise.
 
 A cache-block prefetch instruction is permitted to access the specified cache
 block whenever a load instruction, store instruction, or instruction fetch is
