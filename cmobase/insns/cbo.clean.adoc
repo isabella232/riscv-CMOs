@@ -2,7 +2,7 @@
 === cbo.clean
 
 Synopsis::
-Perform a clean operation on the cache block containing the effective address
+Perform a clean operation on a cache block
 
 Mnemonic::
 cbo.clean _base_
@@ -20,7 +20,9 @@ Encoding::
 ....
 
 Description::
-A *cbo.clean* instruction performs a clean operation on the set of coherent
+
+A *cbo.clean* instruction performs a clean operation on the cache block whose
+effective address is specified in _rs1_ and operates on the set of coherent
 caches accessed by the agent executing the instruction.
 
 Operation::

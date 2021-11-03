@@ -7,11 +7,16 @@ granularity and atomicity, including individual bytes.
 
 ****
 
-_Cache-block zero instructions store zeros independent of whether data from the
-underlying memory locations are cacheable. In addition, this specification does
-not constrain how the bytes are written._
+_Cache-block zero instructions store zeros independently of whether data from
+the underlying memory locations are cacheable. In addition, this specification
+does not constrain how the bytes are written._
 
 ****
+
+These instructions operate on the cache block, or the memory locations
+corresponding to the cache block, whose effective address is specified in _rs1_.
+The effective address is translated into a corresponding physical address by the
+appropriate translation mechanisms.
 
 The following instructions comprise the Zicboz extension:
 

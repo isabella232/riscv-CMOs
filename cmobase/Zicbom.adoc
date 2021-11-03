@@ -37,6 +37,10 @@ performance optimization._
 
 ****
 
+These instructions operate on the cache block whose effective address is
+specified in _rs1_. The effective address is translated into a corresponding
+physical address by the appropriate translation mechanisms.
+
 The following instructions comprise the Zicbom extension:
 
 [%header,cols="^1,^1,4,8"]

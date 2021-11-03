@@ -2,8 +2,7 @@
 === cbo.zero
 
 Synopsis::
-Store zeros to the set of the bytes corresponding to the cache block containing
-the effective address
+Store zeros to the full set of the bytes corresponding to a cache block
 
 Mnemonic::
 cbo.zero _base_
@@ -22,9 +21,9 @@ Encoding::
 
 Description::
 
-A *cbo.zero* instruction performs stores of zeros to the set of bytes
-corresponding to a cache block. An implementation may or may not update the
-entire set of bytes atomically.
+A *cbo.zero* instruction performs stores of zeros to the full set of bytes
+corresponding to the cache block whose effective address is specified in _rs1_.
+An implementation may or may not update the entire set of bytes atomically.
 
 Operation::
 [source,sail]

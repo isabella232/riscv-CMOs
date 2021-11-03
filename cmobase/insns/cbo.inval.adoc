@@ -2,8 +2,7 @@
 === cbo.inval
 
 Synopsis::
-Perform an invalidate operation on the cache block containing the effective
-address
+Perform an invalidate operation on a cache block
 
 Mnemonic::
 cbo.inval _base_
@@ -22,9 +21,10 @@ Encoding::
 
 Description::
 
-A *cbo.inval* instruction performs an invalidate operation on the set of
+A *cbo.inval* instruction performs an invalidate operation on the cache block
+whose effective address is specified in _rs1_ and operates on the set of
 coherent caches accessed by the agent executing the instruction. The instruction
-may perform a flush operation, however, depending on CSR programming.
+alternatively performs a flush operation depending on CSR programming.
 
 Operation::
 [source,sail]

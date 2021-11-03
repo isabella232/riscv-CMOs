@@ -2,8 +2,8 @@
 === prefetch.i
 
 Synopsis::
-Provide a HINT to hardware that the cache block containing the effective address
-is likely to be accessed by an instruction fetch in the near future
+Provide a HINT to hardware that a cache block is likely to be accessed by an
+instruction fetch in the near future
 
 Mnemonic::
 prefetch.i _offset_(_base_)
@@ -22,9 +22,11 @@ Encoding::
 ....
 
 Description::
-A *prefetch.i* instruction indicates to hardware that the cache block containing
-the effective address is likely to be accessed by an instruction fetch in the
-near future.
+
+A *prefetch.i* instruction indicates to hardware that the cache block whose
+effective address is the sum of the base address specified in _rs1_ and the
+sign-extended offset encoded in _imm[11:0]_, where _imm[4:0]_ equals `0b00000`,
+is likely to be accessed by an instruction fetch in the near future.
 
 ****
 
