@@ -306,8 +306,8 @@ permitted to access the corresponding physical addresses. If access to the cache
 block is not permitted, a cache-block management instruction raises a store page
 fault or store guest-page fault exception if address translation does not permit
 any access or raises a store access fault exception otherwise. During address
-translation, the instruction also checks the access bit and may either raise an
-exception or set the bit as required.
+translation, the instruction also checks the accessed bit and may either raise
+an exception or set the bit as required.
 
 A cache-block zero instruction is permitted to access the specified cache block
 whenever a store instruction is permitted to access the corresponding physical
@@ -316,7 +316,7 @@ supported access type. If access to the cache block is not permitted, a
 cache-block zero instruction raises a store page fault or store guest-page fault
 exception if address translation does not permit write access or raises a store
 access fault exception otherwise. During address translation, the instruction
-also checks the access and dirty bits and may either raise an exception or set
+also checks the accessed and dirty bits and may either raise an exception or set
 the bits as required.
 
 A cache-block prefetch instruction is permitted to access the specified cache
@@ -324,7 +324,7 @@ block whenever a load instruction, store instruction, or instruction fetch is
 permitted to access the corresponding physical addresses. If access to the cache
 block is not permitted, a cache-block prefetch instruction does not raise any
 exceptions and shall not access any caches or memory. During address
-translation, the instruction does _not_ check the access and dirty bits and
+translation, the instruction does _not_ check the accessed and dirty bits and
 neither raises an exception nor sets the bits.
 
 ****
