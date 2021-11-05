@@ -2,7 +2,7 @@
 === cbo.zero
 
 Synopsis::
-Store zeros to the full set of the bytes corresponding to a cache block
+Store zeros to the full set of bytes corresponding to a cache block
 
 Mnemonic::
 cbo.zero _base_
