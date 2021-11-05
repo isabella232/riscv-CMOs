@@ -205,7 +205,7 @@ Additionally, invalidate, clean, and flush operations are classified as W or O
 (depending on the physical memory attributes for the corresponding physical
 addresses) for the purposes of predecessor and successor sets in `FENCE`
 instructions. These operations are _not_ ordered by other instructions that
-order stores, e.g. FENCE.I and SFENCE.VMA.
+order stores, e.g. `FENCE.I` and `SFENCE.VMA`.
 
 For cache-block zero instructions, the resulting store operations behave as
 stores in the PPO rules and are ordered by other instructions that order stores.
