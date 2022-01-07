@@ -301,13 +301,26 @@ accesses by cache-block zero instructions; however, I/O regions may specify
 whether accesses by cache-block zero instructions are supported.
 
 A cache-block management instruction is permitted to access the specified cache
-block whenever a load instruction, store instruction, or instruction fetch is
-permitted to access the corresponding physical addresses. If access to the cache
-block is not permitted, a cache-block management instruction raises a store page
-fault or store guest-page fault exception if address translation does not permit
-any access or raises a store access fault exception otherwise. During address
-translation, the instruction also checks the accessed bit and may either raise
-an exception or set the bit as required.
+block whenever a load instruction or store instruction is permitted to access
+the corresponding physical addresses. If neither a load instruction nor store
+instruction is permitted to access the physical addresses, but an instruction
+fetch is permitted to access the physical addresses, whether a cache-block
+management instruction is permitted to access the cache block is UNSPECIFIED. If
+access to the cache block is not permitted, a cache-block management instruction
+raises a store page fault or store guest-page fault exception if address
+translation does not permit any access or raises a store access fault exception
+otherwise. During address translation, the instruction also checks the accessed
+bit and may either raise an exception or set the bit as required.
+
+****
+
+_The interaction between cache-block management instructions and instruction
+fetches will be specified in a future extension._
+
+_As implied by omission, a cache-block management instruction does not check the
+dirty bit and neither raises an exception nor sets the bit._
+
+****
 
 A cache-block zero instruction is permitted to access the specified cache block
 whenever a store instruction is permitted to access the corresponding physical
