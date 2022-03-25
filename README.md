@@ -1,5 +1,7 @@
 # Cache Management Operations for RISC-V
 
+_Note: The RISC-V CMO TG is currently in maintenance mode. Updates to the existing extensions, Zicbom, Zicboz, and Zicbop, will be made as necessary. Please contact help@riscv.org with any questions._
+
 This repository is the working area for the RISC-V Cache Management Operation
 Task Group (CMO TG). The TG is primarily responsible for developing ISA
 extensions in the area of cache management.
