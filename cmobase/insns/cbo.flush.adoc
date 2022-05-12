@@ -5,7 +5,7 @@ Synopsis::
 Perform a flush operation on a cache block
 
 Mnemonic::
-cbo.flush _base_
+cbo.flush _offset_(_base_)
 
 Encoding::
 [wavedrom, , svg]
@@ -22,8 +22,10 @@ Encoding::
 Description::
 
 A *cbo.flush* instruction performs a flush operation on the cache block whose
-effective address is specified in _rs1_ and operates on the set of coherent
-caches accessed by the agent executing the instruction.
+effective address is the base address specified in _rs1_. The offset operand may
+be omitted; otherwise, any expression that computes the offset shall evaluate to
+zero. The instruction operates on the set of coherent caches accessed by the
+agent executing the instruction.
 
 Operation::
 [source,sail]

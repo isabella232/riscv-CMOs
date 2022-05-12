@@ -5,7 +5,7 @@ Synopsis::
 Store zeros to the full set of bytes corresponding to a cache block
 
 Mnemonic::
-cbo.zero _base_
+cbo.zero _offset_(_base_)
 
 Encoding::
 [wavedrom, , svg]
@@ -22,8 +22,10 @@ Encoding::
 Description::
 
 A *cbo.zero* instruction performs stores of zeros to the full set of bytes
-corresponding to the cache block whose effective address is specified in _rs1_.
-An implementation may or may not update the entire set of bytes atomically.
+corresponding to the cache block whose effective address is the base address
+specified in _rs1_. The offset operand may be omitted; otherwise, any expression
+that computes the offset shall evaluate to zero. An implementation may or may
+not update the entire set of bytes atomically.
 
 Operation::
 [source,sail]
