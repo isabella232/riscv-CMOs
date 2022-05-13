@@ -5,7 +5,7 @@ Synopsis::
 Perform an invalidate operation on a cache block
 
 Mnemonic::
-cbo.inval _base_
+cbo.inval _offset_(_base_)
 
 Encoding::
 [wavedrom, , svg]
@@ -22,9 +22,12 @@ Encoding::
 Description::
 
 A *cbo.inval* instruction performs an invalidate operation on the cache block
-whose effective address is specified in _rs1_ and operates on the set of
-coherent caches accessed by the agent executing the instruction. The instruction
-alternatively performs a flush operation depending on CSR programming.
+whose effective address is the base address specified in _rs1_. The offset
+operand may be omitted; otherwise, any expression that computes the offset shall
+evaluate to zero. The instruction operates on the set of coherent caches
+accessed by the agent executing the instruction. Depending on CSR programming,
+the instruction may perform a flush operation instead of an invalidate
+operation.
 
 Operation::
 [source,sail]
